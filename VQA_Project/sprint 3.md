@@ -10,11 +10,11 @@ https://github.com/tbmoon/basic_vqa
 
 Then we try to use a medical VQA dataset.
 
-https://github.com/Awenbocc/med-vqa
+https://osf.io/2ku83/
 
 ## Dataset
 
-VQA-RAD is a manufactured data set in which the questions and answers are radiographic images provided by clinicians. There are 3,515 questions in 11 types. 
+VQA-RAD is a manufactured data set in which the questions and answers are radiographic images provided by clinicians. The pictures are all about radiology. There are 3,515 questions in 11 types. 
 
 Clinical problems can be divided into four categories: modality problems, plane problems, organ system problems and abnormality problems. For the first three categories, QA uses a multiple choice (MC) style, with a fixed number of possible answers (36, 16, and 10, respectively). Therefore, QA tasks can be equivalently expressed as multipath classification problems with 36, 16, and 10 categories, respectively. This makes this data set much less difficult.
 
@@ -46,33 +46,49 @@ Examples:
 – what is most alarming about this ultrasound?  
 
 
-58% of QA in VQA-RAD are multiple choice questions, which means,  Most questions have a fixed number of candidate answers that can be sorted in a variety of ways. And the rest are open questions. The pictures are all about radiology. 
-
-![avatar](pic/1.png)
+58% of QA in VQA-RAD are multiple choice questions, which means,  Most questions have a fixed number of candidate answers that can be sorted in a variety of ways. And the rest are open questions. 
 
 ## code
 
 ```
-for batch_idx, batch_sample in enumerate(data_loader[phase]):
+def build_medical_input():
+    j = open('./VQA_RAD Dataset Public.json')
+    info = json.load(j)
+    dataset = [None]*len(info)
+    for n_info, information in enumerate(info):
+        image_name=information['image_name']
+        image_path=os.path.join(RESIZE_PATH + '/', image_name)
+        # print(image_path)
+        question_id=information['qid']
+        question_str=information['question']
+        question_tokens=text_helper.tokenize(question_str)
+        all_answers = [str(information['answer'])]
+        iminfo = dict(
+            image_name = image_name,
+            image_path = image_path,
+            question_id = question_id,
+            question_str = question_str,
+            question_tokens = question_tokens,
+            all_answers = all_answers,
+            valid_answers = all_answers)
 
-    image = batch_sample['image'].to(device)
-    question = batch_sample['question'].to(device)
-    label = batch_sample['answer_label'].to(device, dtype=torch.long)
-    multi_choice = batch_sample['answer_multi_choice']  # not tensor, list.
+        dataset[n_info] = iminfo
+    print(dataset[0])
+    data_array = np.array(dataset)
+    length = len(data_array)
+    train_arr = data_array
+    valid_arr = data_array[int(length*0.9)+1:length]
 
-    optimizer.zero_grad()
-
-    with torch.set_grad_enabled(phase == 'train'):
-
-        output = model(image, question)      # [batch_size, ans_vocab_size=1000]
-        _, pred_exp1 = torch.max(output, 1)  # [batch_size]
-        _, pred_exp2 = torch.max(output, 1)  # [batch_size]
-        loss = criterion(output, label)
+    np.save(DATA_PATH+'/train.npy', train_arr)
+    np.save(DATA_PATH+'/valid.npy', valid_arr)
 ```
+![avatar](pic/2.png)
 
 Now we only use the part of question and answer, other information has not been used yet.
 
 ## Future work:
+![avatar](pic/1.png)
+
 Medical VQA datasets are more challenging to construct than VQA datasets in the general field. For medical data, a piece of data is a patient's information. Medical images such as pathological images are highly domain specific, which can only be explained by well-educated medical professionals. 
 
 Besides, to create a VQA dataset, a image dataset need to be collected first. Despite the ubiquity of images in the common domain, medical images are difficult to obtain because of privacy concerns.

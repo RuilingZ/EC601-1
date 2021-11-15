@@ -14,7 +14,10 @@ https://osf.io/2ku83/
 
 ## Dataset
 
-VQA-RAD is a manufactured data set in which the questions and answers are radiographic images provided by clinicians. The pictures are all about radiology. There are 3,515 questions in 11 types. 
+VQA-RAD is a manufactured data set in which the questions and answers are radiographic images provided by clinicians. The pictures are all about radiology. 
+![avatar](pic/3.png)
+
+There are 3,515 questions in 11 types. 
 
 Clinical problems can be divided into four categories: modality problems, plane problems, organ system problems and abnormality problems. For the first three categories, QA uses a multiple choice (MC) style, with a fixed number of possible answers (36, 16, and 10, respectively). Therefore, QA tasks can be equivalently expressed as multipath classification problems with 36, 16, and 10 categories, respectively. This makes this data set much less difficult.
 
